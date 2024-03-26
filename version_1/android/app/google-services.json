@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "282089342858",
+    "firebase_url": "https://wellwisher-01-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "wellwisher-01",
+    "storage_bucket": "wellwisher-01.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282089342858:android:f3bff2bb57d46898726a73",
+        "android_client_info": {
+          "package_name": "com.example.version_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "282089342858-5rd9l09dahggjs2du4hevsmj1p437jo2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnO41CTQJxHJbmuwtCtnJX5W4GaeEwPAk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "282089342858-5rd9l09dahggjs2du4hevsmj1p437jo2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "282089342858-62tonl74lnp04gjh950fresulafqcek5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.dashboard"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282089342858:android:311f988382333dd5726a73",
+        "android_client_info": {
+          "package_name": "com.mycompany.dashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "282089342858-5rd9l09dahggjs2du4hevsmj1p437jo2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnO41CTQJxHJbmuwtCtnJX5W4GaeEwPAk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "282089342858-5rd9l09dahggjs2du4hevsmj1p437jo2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "282089342858-62tonl74lnp04gjh950fresulafqcek5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.dashboard"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
