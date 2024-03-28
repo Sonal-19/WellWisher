@@ -3,6 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:version_1/screens/heartrateScreen.dart';
+import 'package:version_1/screens/steptakenScreen.dart';
+import 'profileScreen.dart';
 
 class DashBoardScreen extends StatefulWidget {
   const DashBoardScreen({Key? key}) : super(key: key);
@@ -14,7 +18,9 @@ class DashBoardScreen extends StatefulWidget {
 class _DashBoardScreenState extends State<DashBoardScreen> {
   String bpm = '0';
   String steps = '0';
+  String? _profileImageUrl;
   final db = FirebaseDatabase.instance.reference();
+  int _selectedIndex = 0;
 
   void signOutUser() {
     FirebaseAuth.instance.signOut();
@@ -57,6 +63,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   void initState() {
     super.initState();
     activateListeners();
+    _fetchProfileImageUrl();
   }
 
   activateListeners() {
@@ -71,6 +78,19 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       setState(() {
         steps = stepsValue;
       });
+    });
+  }
+
+  // Fetch profile image URL from Firestore and update _profileImageUrl
+  Future<void> _fetchProfileImageUrl() async {
+    final DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance
+            .collection('UsersData')
+            .doc(currentUser!.email)
+            .get();
+
+    setState(() {
+      _profileImageUrl = userSnapshot.data()!['profileImageUrl'];
     });
   }
 
@@ -93,11 +113,62 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileScreen(),
+                            ),
+                          );
+                        },
                         child: CircleAvatar(
                           radius: 30,
-                          backgroundImage:
-                              AssetImage('assets/images/profile/dp1.jpg'),
+                          backgroundColor: Colors.grey,
+                          child: _profileImageUrl != null
+                              ? CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: NetworkImage(
+                                    _profileImageUrl!,
+                                  ),
+                                )
+                              : FutureBuilder(
+                                  future: getUserInfo(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.waiting ||
+                                        !snapshot.hasData) {
+                                      return CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      print("Error: ${snapshot.error}");
+                                      return Icon(Icons.error);
+                                    } else {
+                                      Map<String, dynamic>? userData =
+                                          snapshot.data!.data();
+                                      if (userData != null &&
+                                          userData
+                                              .containsKey('profileImageUrl')) {
+                                        return CircleAvatar(
+                                          radius: 30,
+                                          backgroundImage: NetworkImage(
+                                            userData['profileImageUrl'],
+                                          ),
+                                        );
+                                      } else {
+                                        String initials = userData!['fullname']
+                                                [0]
+                                            .toUpperCase();
+                                        return Text(
+                                          initials,
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.black,
+                                            fontFamily: 'Onest',
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
                         ),
                       ),
                       SizedBox(width: 10),
@@ -169,7 +240,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               ),
             ),
 
-// -----------------------HEART RATE---------------------------------------        
+// -----------------------HEART RATE---------------------------------------
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -372,38 +443,113 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                         ),
                       ),
                     ),
+                  
                   ],
                 ),
               ),
             ),
+          
           ],
         ),
       ),
 
-//------- Footer------
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.home),
-              color: Colors.black,
+      //------- Footer------
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(10.0),
+        // padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.0),
+          child: BottomAppBar(
+            color: Color.fromARGB(255, 164, 238, 201),
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedIndex = 0;
+                      });
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 0 ? Colors.white : Colors.grey,
+                      ),
+                      child: Icon(
+                        Icons.home,
+                        size: 25,
+                        color:
+                            _selectedIndex == 0 ? Colors.black : Colors.white,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HeartRateScreen(),
+                        ),
+                      );
+                      setState(() {
+                        _selectedIndex = 1;
+                      });
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 1 ? Colors.white : Colors.grey,
+                      ),
+                      child: Icon(
+                        Icons.favorite,
+                        size: 25,
+                        color:
+                            _selectedIndex == 1 ? Colors.black : Colors.white,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StepTakenScreen(),
+                        ),
+                      );
+                      setState(() {
+                        _selectedIndex = 2;
+                      });
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedIndex == 2 ? Colors.white : Colors.grey,
+                      ),
+                      child: Icon(
+                        Icons.directions_run,
+                        size: 25,
+                        color:
+                            _selectedIndex == 2 ? Colors.black : Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.favorite),
-              color: Colors.black,
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.directions_run),
-              color: Colors.black,
-            ),
-          ],
+          ),
         ),
       ),
+    
+    
     );
+  
+  
   }
 }
