@@ -341,6 +341,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                             // 'assets/images/illustrationart/heartrt.gif',
                                             'assets/images/illustrationart/cardht.gif',
                                             height: double.infinity,
+                                            
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                           ),

@@ -91,146 +91,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Future<void> _pickImage() async {
-  //   FilePickerResult? result;
-
-  //   if (Platform.isAndroid || Platform.isIOS) {
-  //     // For mobile platforms, use FilePicker for image selection
-  //     result = await FilePicker.platform.pickFiles(type: FileType.image);
-  //   } else {
-  //     // For other platforms, use native file dialog
-  //     result = await FilePicker.platform.pickFiles(
-  //       type: FileType.image,
-  //       allowMultiple: false,
-  //     );
-  //   }
-  //   if (result != null) {
-  //     Uint8List bytes = result.files.single.bytes!;
-
-  //     Reference ref = FirebaseStorage.instance
-  //         .ref()
-  //         .child('profile_images/${currentUser!.uid}');
-  //     UploadTask uploadTask = ref.putData(bytes);
-  //     TaskSnapshot downloadUrl = await uploadTask;
-  //     String url = await downloadUrl.ref.getDownloadURL();
-  //     setState(() {
-  //       _profileImageUrl = url;
-  //     });
-  //   }
-  // }
-
-  // Future<void> _pickImage() async {
-  //   FilePickerResult? result;
-  //   if (Theme.of(context).platform == TargetPlatform.android ||
-  //       Theme.of(context).platform == TargetPlatform.iOS) {
-  //     // For mobile platforms (Android and iOS), use FilePicker for image selection
-  //     result = await FilePicker.platform.pickFiles(type: FileType.image);
-  //   } else {
-  //     // For other platforms, use native file dialog
-  //     result = await FilePicker.platform.pickFiles(
-  //       type: FileType.image,
-  //       allowMultiple: false,
-  //     );
-  //   }
-  //   if (result != null) {
-  //     Uint8List bytes = result.files.single.bytes!;
-  //
-  //     Reference ref = FirebaseStorage.instance
-  //         .ref()
-  //         .child('profile_images/${currentUser!.uid}');
-  //     UploadTask uploadTask = ref.putData(bytes);
-  //     TaskSnapshot downloadUrl = await uploadTask;
-  //     String url = await downloadUrl.ref.getDownloadURL();
-  //
-  //     setState(() {
-  //       _profileImageUrl = url;
-  //     });
-  //   }
-  // }
-
-
-
-  // Future<void> _pickImage() async {
-  //   FilePickerResult? result;
-
-  //   if (Theme.of(context).platform == TargetPlatform.android ||
-  //       Theme.of(context).platform == TargetPlatform.iOS) {
-  //     // For mobile platforms (Android and iOS), use FilePicker for image selection
-  //     result = await FilePicker.platform.pickFiles(type: FileType.image);
-  //   } else {
-  //     // For other platforms, use native file dialog
-  //     result = await FilePicker.platform.pickFiles(
-  //       type: FileType.image,
-  //       allowMultiple: false,
-  //     );
-  //   }
-
-  //   if (result != null && result.files.isNotEmpty) {
-  //     String? filePath = result.files.single.path;
-
-  //     if (filePath != null) {
-  //       File imageFile = File(filePath);
-  //       Uint8List bytes = await imageFile.readAsBytes();
-
-  //       Reference ref = FirebaseStorage.instance
-  //           .ref()
-  //           .child('profile_images/${currentUser!.uid}');
-  //       UploadTask uploadTask = ref.putData(bytes);
-  //       TaskSnapshot downloadUrl = await uploadTask;
-  //       String url = await downloadUrl.ref.getDownloadURL();
-
-  //       // Update profile image URL in DashboardScreen
-  //       Navigator.pop(context, url);
-  //     } else {
-  //       print('File path is null');
-  //     }
-  //   } else {
-  //     print('Result is null or files list is empty');
-  //   }
-  // }
-
   Future<void> _pickImage() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.image,
-    allowMultiple: false,
-  );
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.image);
 
-  if (result != null && result.files.isNotEmpty) {
-    String? filePath = result.files.single.path;
-
-    if (filePath != null) {
-      File imageFile = File(filePath);
-      Uint8List bytes = await imageFile.readAsBytes();
+    if (result != null) {
+      Uint8List bytes = result.files.single.bytes!;
 
       Reference ref = FirebaseStorage.instance
           .ref()
           .child('profile_images/${currentUser!.uid}');
       UploadTask uploadTask = ref.putData(bytes);
+      TaskSnapshot downloadUrl = await uploadTask;
+      String url = await downloadUrl.ref.getDownloadURL();
 
-      // Listen to the upload state changes
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        if (snapshot.state == TaskState.success) {
-          // Once upload is successful, get the download URL
-          ref.getDownloadURL().then((url) {
-            setState(() {
-              // Update the profile image URL
-              _profileImageUrl = url;
-            });
-          }).catchError((error) {
-            print('Failed to get download URL: $error');
-          });
-        }
-      });
-
-      // Handle upload errors
-      uploadTask.catchError((error) {
-        print('Upload failed: $error');
+      setState(() {
+        _profileImageUrl = url;
       });
     }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
