@@ -3,10 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:version_1/screens/heartrateScreen.dart';
-import 'package:version_1/screens/steptakenScreen.dart';
-import 'profileScreen.dart';
 
 class DashBoardScreen extends StatefulWidget {
   const DashBoardScreen({Key? key}) : super(key: key);
@@ -20,11 +16,10 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   String steps = '0';
   String? _profileImageUrl;
   final db = FirebaseDatabase.instance.reference();
-  int _selectedIndex = 0;
 
-  void signOutUser() {
-    FirebaseAuth.instance.signOut();
-  }
+  // void signOutUser() {
+  //   FirebaseAuth.instance.signOut();
+  // }
 
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -103,75 +98,12 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 25,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfileScreen(),
-                            ),
-                          );
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.grey,
-                          child: _profileImageUrl != null
-                              ? CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: NetworkImage(
-                                    _profileImageUrl!,
-                                  ),
-                                )
-                              : FutureBuilder(
-                                  future: getUserInfo(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                            ConnectionState.waiting ||
-                                        !snapshot.hasData) {
-                                      return CircularProgressIndicator();
-                                    } else if (snapshot.hasError) {
-                                      print("Error: ${snapshot.error}");
-                                      return Icon(Icons.error);
-                                    } else {
-                                      Map<String, dynamic>? userData =
-                                          snapshot.data!.data();
-                                      if (userData != null &&
-                                          userData
-                                              .containsKey('profileImageUrl')) {
-                                        return CircleAvatar(
-                                          radius: 30,
-                                          backgroundImage: NetworkImage(
-                                            userData['profileImageUrl'],
-                                          ),
-                                        );
-                                      } else {
-                                        String initials = userData!['fullname']
-                                                [0]
-                                            .toUpperCase();
-                                        return Text(
-                                          initials,
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black,
-                                            fontFamily: 'Onest',
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
                       Text(
                         'Hello, ',
                         style: TextStyle(
@@ -205,26 +137,69 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      signOutUser();
-                    },
+                  Padding(
+                    padding: EdgeInsets.only(left: 10.0),
                     child: Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xffede7e3),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
-                        Icons.logout,
-                        size: 25,
-                      ),
+                      child: _profileImageUrl != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                _profileImageUrl!,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : FutureBuilder(
+                              future: getUserInfo(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                        ConnectionState.waiting ||
+                                    !snapshot.hasData) {
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  print("Error: ${snapshot.error}");
+                                  return Icon(Icons.error);
+                                } else {
+                                  Map<String, dynamic>? userData =
+                                      snapshot.data!.data();
+                                  if (userData != null &&
+                                      userData.containsKey('profileImageUrl')) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        userData['profileImageUrl'],
+                                        width: 40,
+                                        height: 40,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    );
+                                  } else {
+                                    String initials =
+                                        userData!['fullname'][0].toUpperCase();
+                                    return Text(
+                                      initials,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontFamily: 'Onest',
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
                     ),
                   ),
                 ],
               ),
             ),
+
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 20.0,
@@ -254,7 +229,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Color(0xff82c0cc),
+                          color: Color.fromARGB(255, 250, 159, 159),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                         child: Row(
@@ -263,10 +238,6 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                             Expanded(
                               child: Container(
                                 width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Color(0xff82c0cc),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -276,19 +247,19 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Color(0xffede7e3),
-                                            ),
-                                            child: Icon(
-                                              Icons.favorite,
-                                              size: 25,
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'Elevate Your',
+                                            // 'Reach Summit',
+                                            style: TextStyle(
+                                              fontSize: 19,
+                                              fontWeight: FontWeight.bold,
+                                              // fontStyle: FontStyle.italic,
+                                              color: Colors.black,
+                                              fontFamily: 'Onest',
                                             ),
                                           ),
-                                          SizedBox(height: 2),
+                                          SizedBox(height: 10),
                                           Padding(
                                             padding: EdgeInsets.all(10.0),
                                             child: TextField(
@@ -317,12 +288,12 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                               readOnly: true,
                                             ),
                                           ),
-                                          SizedBox(width: 10),
+                                          SizedBox(height: 10),
                                           Text(
-                                            'Heartbeat',
+                                            'Heart Rate',
                                             style: TextStyle(
                                               fontSize: 19,
-                                              // fontWeight:FontWeight.w400,
+                                              fontWeight: FontWeight.w400,
                                               fontStyle: FontStyle.italic,
                                               color: Colors.black,
                                               fontFamily: 'Onest',
@@ -338,10 +309,8 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                           borderRadius:
                                               BorderRadius.circular(20.0),
                                           child: Image.asset(
-                                            // 'assets/images/illustrationart/heartrt.gif',
-                                            'assets/images/illustrationart/cardht.gif',
+                                            'assets/images/illustrationart/ht5.png',
                                             height: double.infinity,
-                                            
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                           ),
@@ -363,7 +332,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Color(0xffffdca7),
+                          color: Color.fromARGB(255, 246, 182, 250),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                         child: Row(
@@ -375,7 +344,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20.0),
                                   child: Image.asset(
-                                    'assets/images/illustrationart/run.gif',
+                                    'assets/images/illustrationart/run.png',
                                     height: double.infinity,
                                     width: double.infinity,
                                     fit: BoxFit.cover,
@@ -387,19 +356,19 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xffede7e3),
-                                    ),
-                                    child: Icon(
-                                      Icons.directions_run,
-                                      size: 25,
+                                  SizedBox(width: 10, height: 10),
+                                  Text(
+                                    'Stride Ahead',
+                                    // 'Step Up Your Stride',
+                                    style: TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.bold,
+                                      // fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      fontFamily: 'Onest',
                                     ),
                                   ),
-                                  SizedBox(height: 2),
+                                  SizedBox(height: 10),
                                   Padding(
                                     padding: EdgeInsets.all(10.0),
                                     child: TextField(
@@ -426,7 +395,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                       readOnly: true,
                                     ),
                                   ),
-                                  SizedBox(width: 10),
+                                  SizedBox(height: 10),
                                   Text(
                                     'Steps Taken',
                                     style: TextStyle(
@@ -449,108 +418,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                 ),
               ),
             ),
-          
           ],
         ),
       ),
-
-      //------- Footer------
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(10.0),
-        // padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20.0),
-          child: BottomAppBar(
-            color: Color.fromARGB(255, 164, 238, 201),
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = 0;
-                      });
-                    },
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _selectedIndex == 0 ? Colors.white : Colors.grey,
-                      ),
-                      child: Icon(
-                        Icons.home,
-                        size: 25,
-                        color:
-                            _selectedIndex == 0 ? Colors.black : Colors.white,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HeartRateScreen(),
-                        ),
-                      );
-                      setState(() {
-                        _selectedIndex = 1;
-                      });
-                    },
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _selectedIndex == 1 ? Colors.white : Colors.grey,
-                      ),
-                      child: Icon(
-                        Icons.favorite,
-                        size: 25,
-                        color:
-                            _selectedIndex == 1 ? Colors.black : Colors.white,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StepTakenScreen(),
-                        ),
-                      );
-                      setState(() {
-                        _selectedIndex = 2;
-                      });
-                    },
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _selectedIndex == 2 ? Colors.white : Colors.grey,
-                      ),
-                      child: Icon(
-                        Icons.directions_run,
-                        size: 25,
-                        color:
-                            _selectedIndex == 2 ? Colors.black : Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    
-    
     );
-  
-  
   }
 }

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'loginScreen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -52,8 +53,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _fullNameController.text = _fullName ?? '';
       _countryController.text = _country ?? '';
       _genderController.text = _gender ?? '';
-      _dobController.text = _dob != null ? _dob.toString() : '';
+      _dobController.text = _dob != null ? _formatDate(_dob!) : '';
     });
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   Future<void> _updateProfile() async {
@@ -91,146 +96,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Future<void> _pickImage() async {
-  //   FilePickerResult? result;
-
-  //   if (Platform.isAndroid || Platform.isIOS) {
-  //     // For mobile platforms, use FilePicker for image selection
-  //     result = await FilePicker.platform.pickFiles(type: FileType.image);
-  //   } else {
-  //     // For other platforms, use native file dialog
-  //     result = await FilePicker.platform.pickFiles(
-  //       type: FileType.image,
-  //       allowMultiple: false,
-  //     );
-  //   }
-  //   if (result != null) {
-  //     Uint8List bytes = result.files.single.bytes!;
-
-  //     Reference ref = FirebaseStorage.instance
-  //         .ref()
-  //         .child('profile_images/${currentUser!.uid}');
-  //     UploadTask uploadTask = ref.putData(bytes);
-  //     TaskSnapshot downloadUrl = await uploadTask;
-  //     String url = await downloadUrl.ref.getDownloadURL();
-  //     setState(() {
-  //       _profileImageUrl = url;
-  //     });
-  //   }
-  // }
-
-  // Future<void> _pickImage() async {
-  //   FilePickerResult? result;
-  //   if (Theme.of(context).platform == TargetPlatform.android ||
-  //       Theme.of(context).platform == TargetPlatform.iOS) {
-  //     // For mobile platforms (Android and iOS), use FilePicker for image selection
-  //     result = await FilePicker.platform.pickFiles(type: FileType.image);
-  //   } else {
-  //     // For other platforms, use native file dialog
-  //     result = await FilePicker.platform.pickFiles(
-  //       type: FileType.image,
-  //       allowMultiple: false,
-  //     );
-  //   }
-  //   if (result != null) {
-  //     Uint8List bytes = result.files.single.bytes!;
-  //
-  //     Reference ref = FirebaseStorage.instance
-  //         .ref()
-  //         .child('profile_images/${currentUser!.uid}');
-  //     UploadTask uploadTask = ref.putData(bytes);
-  //     TaskSnapshot downloadUrl = await uploadTask;
-  //     String url = await downloadUrl.ref.getDownloadURL();
-  //
-  //     setState(() {
-  //       _profileImageUrl = url;
-  //     });
-  //   }
-  // }
-
-
-
-  // Future<void> _pickImage() async {
-  //   FilePickerResult? result;
-
-  //   if (Theme.of(context).platform == TargetPlatform.android ||
-  //       Theme.of(context).platform == TargetPlatform.iOS) {
-  //     // For mobile platforms (Android and iOS), use FilePicker for image selection
-  //     result = await FilePicker.platform.pickFiles(type: FileType.image);
-  //   } else {
-  //     // For other platforms, use native file dialog
-  //     result = await FilePicker.platform.pickFiles(
-  //       type: FileType.image,
-  //       allowMultiple: false,
-  //     );
-  //   }
-
-  //   if (result != null && result.files.isNotEmpty) {
-  //     String? filePath = result.files.single.path;
-
-  //     if (filePath != null) {
-  //       File imageFile = File(filePath);
-  //       Uint8List bytes = await imageFile.readAsBytes();
-
-  //       Reference ref = FirebaseStorage.instance
-  //           .ref()
-  //           .child('profile_images/${currentUser!.uid}');
-  //       UploadTask uploadTask = ref.putData(bytes);
-  //       TaskSnapshot downloadUrl = await uploadTask;
-  //       String url = await downloadUrl.ref.getDownloadURL();
-
-  //       // Update profile image URL in DashboardScreen
-  //       Navigator.pop(context, url);
-  //     } else {
-  //       print('File path is null');
-  //     }
-  //   } else {
-  //     print('Result is null or files list is empty');
-  //   }
-  // }
-
   Future<void> _pickImage() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.image,
-    allowMultiple: false,
-  );
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
 
-  if (result != null && result.files.isNotEmpty) {
-    String? filePath = result.files.single.path;
+    if (result != null && result.files.isNotEmpty) {
+      String? filePath = result.files.single.path;
 
-    if (filePath != null) {
-      File imageFile = File(filePath);
-      Uint8List bytes = await imageFile.readAsBytes();
+      if (filePath != null) {
+        File imageFile = File(filePath);
+        Uint8List bytes = await imageFile.readAsBytes();
 
-      Reference ref = FirebaseStorage.instance
-          .ref()
-          .child('profile_images/${currentUser!.uid}');
-      UploadTask uploadTask = ref.putData(bytes);
+        Reference ref = FirebaseStorage.instance
+            .ref()
+            .child('profile_images/${currentUser!.uid}');
+        UploadTask uploadTask = ref.putData(bytes);
 
-      // Listen to the upload state changes
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        if (snapshot.state == TaskState.success) {
-          // Once upload is successful, get the download URL
-          ref.getDownloadURL().then((url) {
-            setState(() {
-              // Update the profile image URL
-              _profileImageUrl = url;
+        // Listen to the upload state changes
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          if (snapshot.state == TaskState.success) {
+            // Once upload is successful, get the download URL
+            ref.getDownloadURL().then((url) {
+              setState(() {
+                // Update the profile image URL
+                _profileImageUrl = url;
+              });
+            }).catchError((error) {
+              print('Failed to get download URL: $error');
             });
-          }).catchError((error) {
-            print('Failed to get download URL: $error');
-          });
-        }
-      });
+          }
+        });
 
-      // Handle upload errors
-      uploadTask.catchError((error) {
-        print('Upload failed: $error');
-      });
+        // // Handle upload errors
+        // uploadTask.catchError((error) {
+        //   print('Upload failed: $error');
+        // });
+      }
     }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -240,85 +145,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Image
-            _buildProfileImage(),
-            SizedBox(height: 20),
-            Text(
-              'Name',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Profile Image
+              _buildProfileImage(),
+              SizedBox(height: 20),
+              Text(
+                'Name',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextField(
-              controller: _fullNameController,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Email',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              TextField(
+                controller: _fullNameController,
               ),
-            ),
-            Text(_email ?? 'No Email Found'),
-            SizedBox(height: 20),
-            Text(
-              'Country',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              SizedBox(height: 20),
+              Text(
+                'Email',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextField(
-              controller: _countryController,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Gender',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              Text(_email ?? 'No Email Found'),
+              SizedBox(height: 20),
+              Text(
+                'Country',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextField(
-              controller: _genderController,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Date of Birth',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              TextField(
+                controller: _countryController,
               ),
-            ),
-            TextField(
-              controller: _dobController,
-              readOnly: true,
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: _dob ?? DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (pickedDate != null && pickedDate != _dob) {
-                  setState(() {
-                    _dob = pickedDate;
-                    _dobController.text = _dob.toString();
-                  });
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _updateProfile,
-              child: Text('Update Profile'),
-            ),
-          ],
+              SizedBox(height: 20),
+              Text(
+                'Gender',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextField(
+                controller: _genderController,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Date of Birth',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextField(
+                controller: _dobController,
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: _dob ?? DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (pickedDate != null && pickedDate != _dob) {
+                    setState(() {
+                      _dob = pickedDate;
+                      _dobController.text = _formatDate(_dob!);
+                    });
+                  }
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _updateProfile,
+                child: Text('Update Profile'),
+              ),
+
+              // Logout
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(onTap: null),
+                    ),
+                  );
+                },
+                child: Text('Logout'),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:version_1/components/mybutton.dart';
 import 'package:version_1/components/mytextfields.dart';
 import 'package:version_1/screens/forgot_passwordScreen.dart';
-import '../components/square_tile.dart';
+// import '../components/square_tile.dart';
+import './navigationScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
@@ -25,6 +26,28 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  // void signUserIn() async {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return const Center(
+  //         child: CircularProgressIndicator(),
+  //       );
+  //     },
+  //   );
+
+  //   try {
+  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //       email: emailidController.text,
+  //       password: passwordController.text,
+  //     );
+  //     Navigator.pop(context);
+  //   } on FirebaseAuthException catch (error) {
+  //     Navigator.pop(context);
+  //     showErrorMessage(error.code);
+  //   }
+  // }
+
   void signUserIn() async {
     showDialog(
       context: context,
@@ -40,9 +63,16 @@ class _LoginScreenState extends State<LoginScreen> {
         email: emailidController.text,
         password: passwordController.text,
       );
-      Navigator.pop(context);
+      Navigator.pop(context); // Close the loading dialog
+      // Navigate to the NavigationScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NavigationScreen(),
+        ),
+      );
     } on FirebaseAuthException catch (error) {
-      Navigator.pop(context);
+      Navigator.pop(context); // Close the loading dialog
       showErrorMessage(error.code);
     }
   }
